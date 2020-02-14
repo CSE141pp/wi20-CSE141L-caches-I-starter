@@ -84,6 +84,15 @@ link on the course home page: https://github.com/CSE141pp/Home/.
 submit this via a *a separate assignment* in Gradescope.  We *will
 not* look at the version in your repo.
 
+## Notes, Hints, and Suggestions
+
+* You should not assume that the optimizations you performed
+  for Tier 1 and Tier 2 are necesarily part of the best (or even a
+  good) solution to Tier 3.
+
+* The prefetcher has been disabled for this lab.  However, you
+  prefetch in software if you are clever (and careful).
+
 ## Tasks to Perform
 
 ### Inspect The Code
@@ -286,7 +295,8 @@ optimizations you want with the following restrictions:
 
 3. To explicit vectorization (that's a later lab).
 
-The target speedup for Tier 3 is 3x on the full training function with includes, `activate()` and `calc_grads`.
+The target speedup for Tier 3 is 3x on the full training function with
+includes, `activate()` and `calc_grads`.
 
 ## Testing
 
