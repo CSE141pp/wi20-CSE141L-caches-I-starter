@@ -207,9 +207,9 @@ the models.  Understanding how it maps `x`,`y`,`z`, `b` to linear
 indexes into the internal array that holds the data is going to be
 very important.  This was covered in the lecture in detail.
 
-### Finding Cache sizes of the Skylake Processor
+### Finding Cache sizes for the Skylake Processor
 
-You can find cache information of the skylake processor here : [Skylake Processor Cache Information](https://en.wikichip.org/wiki/intel/microarchitectures/skylake_(client)#Memory_Hierarchy)
+You can find cache information for the skylake processor we are using for this class here : [Skylake Processor Cache Information](https://en.wikichip.org/wiki/intel/microarchitectures/skylake_(client)#Memory_Hierarchy)
 
 ### Tier 1: Optimizing One Function
 
