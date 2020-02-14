@@ -10,7 +10,7 @@ Check gradescope for due date(s).
 ## Grading
 
 Your grade for this lab will be based on your completion of the data
-collection steps described in this document and the completed worksheet.
+collection steps described in this document and the completed `worksheet.pdf`.
 
 | Part                       | value |
 |----------------------------|-------|
@@ -54,11 +54,13 @@ progress.
 
 For this lab, the leader board does not impact your grade.
 
-## Example Code
+## Example Code and Lecture Slides
 
 The `example` directory contains the image stabilization example from the lab
 lecture slides.  You shouldn't (and won't need to) use any of the code from
 that example for this lab.
+
+The lecture slides are in `lecture-slides.pdf`.
 
 ## Skills to Learn and Practice
 
@@ -331,9 +333,10 @@ returns a random number between x and 2*x.
 You can and should run the test suite locally.  You don't need cloud machines to test
 correctness.  `runlab` runs it automatically.
 
-You can also add tests, but be aware that `run_test.cpp` is not copied to the cloud, so your new
-tests won't run there.
+You can also run it by hand with `run_tests.exe`.  You can also debug it using `gdb`.
 
+You can also add tests, but be aware that `run_test.cpp` is not copied to the
+cloud, so your new tests won't run there.
 
 ## Debugging 
 
