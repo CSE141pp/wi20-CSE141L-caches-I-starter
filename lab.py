@@ -22,6 +22,8 @@ class ThisLab(CSE141Lab):
             reference_tag = kwargs.get("repo") or "master",
             timeout = 360
         )
+    def filter_command(self, command):
+        return self.make_target_filter(command)
     
     class MetaRegressions(CSE141Lab.MetaRegressions):
         def setUp(self):

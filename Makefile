@@ -32,3 +32,8 @@ benchmark.csv: code.exe
 	./code.exe --stats-file $@ --dataset cifar100 --scale 4 --reps 500 --train-reps 3000 $(OUR_CMD_LINE_ARGS)
 	pretty-csv $@
 	if [ -e gmon.out ]; then gprof $< > benchmark.gprof; fi
+
+.PHONY: collect-trace
+collect-trace: code.exe
+	./code.exe --dataset cifar100  --scale 0 --reps 0 --train-reps 1
+
