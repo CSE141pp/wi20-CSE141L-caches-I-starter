@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include "CNN/canela.hpp"
 #include <opt_cnn.hpp>
+#include <algorithm>
+
 extern model_t * build_model(const dataset_t & ds);
 void run_component_performance_tests(const dataset_t & ds, int clock_rate, int batch_size, int reps);
 void run_canary(int clock_rate);
@@ -88,20 +90,20 @@ int main(int argc, char *argv[])
 		dataset_t *test = new dataset_t;
 	
 		if (ds == "mnist") {
-			*train = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/mnist/mnist-train.dataset", 200 * scale_factor);
-			*test = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/mnist/mnist-test.dataset", 200 * scale_factor);
+			*train = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/mnist/mnist-train.dataset", std::max(1, 200 * scale_factor));
+			*test = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/mnist/mnist-test.dataset", std::max(1, 200 * scale_factor));
 		} else if (ds == "emnist") {
-			*train = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/mnist/emnist-byclass-train.dataset", 200 * scale_factor);
-			*test = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/mnist/emnist-byclass-test.dataset", 200 * scale_factor);
+			*train = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/mnist/emnist-byclass-train.dataset", std::max(1, 200 * scale_factor));
+			*test = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/mnist/emnist-byclass-test.dataset", std::max(1, 200 * scale_factor));
 		} else if (ds == "cifar10") {
-			*train = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/cifar/cifar10_data_batch_1.dataset", 100 * scale_factor);
-			*test = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/cifar/cifar10_test_batch.dataset", 100 * scale_factor);
+			*train = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/cifar/cifar10_data_batch_1.dataset", std::max(1, 100 * scale_factor));
+			*test = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/cifar/cifar10_test_batch.dataset", std::max(1, 100 * scale_factor));
 		} else if (ds == "cifar100") {
-			*train = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/cifar/cifar100_train.dataset", 100 * scale_factor);
-			*test = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/cifar/cifar100_test.dataset", 100 * scale_factor);
+			*train = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/cifar/cifar100_train.dataset", std::max(1, 100 * scale_factor));
+			*test = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/cifar/cifar100_test.dataset", std::max(1, 100 * scale_factor));
 		} else if (ds == "imagenet") {
-			*train = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/imagenet/imagenet.dataset", 1 * scale_factor);
-			*test = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/imagenet/imagenet.dataset", 1 * scale_factor);
+			*train = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/imagenet/imagenet.dataset", std::max(1, 1 * scale_factor));
+			*test = dataset_t::read(std::string(std::getenv("CANELA_ROOT")) + "/datasets/imagenet/imagenet.dataset", std::max(1, 1 * scale_factor));
 		}
 
 		theDataCollector->register_tag("dataset", ds);
@@ -120,6 +122,9 @@ int main(int argc, char *argv[])
 		std::cout << "Training cases    : " << train->size() << std::endl;
 		std::cout << "Testing data size : " << (test->get_total_memory_size()+0.0)/(1024*1024)  << " MB" << std::endl;
 		std::cout << "Testing cases     : " << test->size() << std::endl;
+
+		std::cout << "Regression parameters\n" <<model->regression_code() << std::endl;
+		
 #if (1)
 		// Timing occurs inside here
 		train_model(model, *train, train_reps, batch_size);
