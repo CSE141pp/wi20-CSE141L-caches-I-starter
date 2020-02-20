@@ -341,7 +341,7 @@ You can also run it by hand with `run_tests.exe`.  You can also debug it using `
 You can also add tests, but be aware that `run_test.cpp` is not copied to the
 cloud, so your new tests won't run there.
 
-## Debugging 
+## Correctness Debugging 
 
 Canela has some debugging support built in.  If you a regression
 fails, you'll get a very lengthy report about it.  For instance:
@@ -424,3 +424,142 @@ $ ./run_tests.exe --gtest_filter=*level_0_fc*
 ```
 
 Note the `_` instead of `-` and the `*`.
+
+
+## Performance Debugging
+
+Achieving the best performance is hard because there are so many
+options: You can tile each loop (perhaps more than once), resulting in
+many possible renesting options.
+
+There are so many options that trying them all or some at random is
+unlikely to give you a good result in a reasonable amount of time.
+
+To help develop your intuition about how the changes to your code
+affect memory access patterns, we've provide some "tracing" facilities
+at the top of `opt_cnn.hpp`.
+
+They are a set of C++ macros you can use to print out the addresses
+that the code is accessing.  They the same tools I used to generate
+the images in the slides from class.
+
+In the initial version of `opt_cnn.hpp`, they are disable by the `#if(0)`:
+
+```
+#pragma once
+#include"CNN/canela.hpp"
+
+#if(0)
+// These three macros are useful for tracing accesses.  See
+// `example/stabilize.cpp` for an example of how to use them.
+#define DUMP_ACCESS(t,x,y,z,b) do {					\
+		trace << t.linearize(x,y,z,b) << " "			\
+		      << " "						\
+		      << &t.get(x,y,z,b) << " ";			\
+	} while(0)
+
+```
+
+However, in `example/stabilize.cpp` they are enabled:
+
+```
+#include "archlab.hpp"
+#include "CNN/canela.hpp"
+#include "math.h"
+#include <fstream>      // std::fstream
+std::fstream trace;
+
+#if(1)
+// THese three macros are useful for tracing accesses.  See examples
+// below for how to use them.  They are disabled by default, but if
+// you change the 0 above to 1, they will turn on.
+//
+
+```
+
+and applied to the inner loop of `do_stabilize_baseline` by opening a trace file:
+
+```
+OPEN_TRACE("trace.out");
+```
+
+and then, in the inner loop,
+
+```
+for(int pixel_x = 0; pixel_x < images.size.x; pixel_x++) {
+	for(int pixel_y = 0; pixel_y < images.size.y; pixel_y++) {
+
+		int shifted_x = pixel_x + offset_x;  // pixel location in the shifted previous frame
+		int shifted_y = pixel_y + offset_y;
+
+		if (shifted_x >= images.size.x || // Bounds check.
+		    shifted_y >= images.size.y)
+			continue;
+
+		// calculate and accumulate the difference between the images at this shifting amount.
+		// We add MAX_OFFSET because the offsets can be negative.
+		DUMP_ACCESSES();
+		output(offset_x, offset_y, 0, this_frame) += 
+			fabs(images(pixel_x, pixel_y, 0, this_frame) -
+			     images(shifted_x, shifted_y, 0, previous_frame));
+	}
+}
+```
+
+The call to `DUMP_ACCESSES()` prints out the address and linearized
+index of the data accessed in the following lines.  If you ran this
+code, you'd see something like this in `trace.out`:
+
+```
+64  0x18c1ae0 784  0x1912440 0  0x1910bc0
+64  0x18c1ae0 812  0x1912520 28  0x1910ca0
+64  0x18c1ae0 840  0x1912600 56  0x1910d80
+64  0x18c1ae0 868  0x19126e0 84  0x1910e60
+64  0x18c1ae0 896  0x19127c0 112  0x1910f40
+64  0x18c1ae0 924  0x19128a0 140  0x1911020
+64  0x18c1ae0 952  0x1912980 168  0x1911100
+64  0x18c1ae0 980  0x1912a60 196  0x19111e0
+```
+
+The first column is the linearized index of `output(offset_x,
+offset_y, 0, this_frame)`.  The second column is the actual address
+being accessed.  The following pairs of columns are the index and
+address of `images(pixel_x, pixel_y, 0, this_frame)` and
+`images(shifted_x, shifted_y, 0, previous_frame)`.
+
+You can make similar changes to your code in `opt_cnn.hpp` to get a
+trace for your functions.
+
+**Note** Only run this code on ieng6.  It'll just timeout if you
+  submit to gradescope like this and it won't return your `trace.out`
+  files.
+
+**Note** It'll probably timeout on ieng6 as well, but it will still
+  produce enough of `trace.out` for you to use.
+ 
+You can take `trace.out` and plot the data in your tool of choice.
+Options include:
+
+1. Google sheets
+2. Excel
+3. Matlab
+4. gnuplot (http://www.gnuplot.info/)
+5. matplotlib
+
+Google sheets and Excel won't be able to handle the whole file (which
+will be very large), but you can do at least a couple thousand lines.
+Matlab, gunplot, and (I think) matplotlib can handle much larger
+datasets.  I used gnuplot for for the images I showed in class.
+
+One thorny issues remains: How to get the data out of your account in
+docker on ieng6.  I've asked campus support about this, but in the
+meantime you can use `scp` to get data out of docker and onto ieng6.
+For instance:
+
+```
+scp trace.out ieng6:trace.out
+```
+
+will copy `trace.out` from inside docker to your account on ieng6.
+
+
